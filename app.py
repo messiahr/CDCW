@@ -1,23 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for
-from sheets_service import append_row
+from flask import Flask, render_template, request
+from sheets_service import append_row  # make sure this works
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("form.html")
+    # Serve the form HTML
+    return render_template("personal_info_form.html")  # rename your HTML file to this
 
 @app.route("/submit", methods=["POST"])
 def submit():
+    # Get form values
     name = request.form.get("name")
-    email = request.form.get("email")
-    message = request.form.get("message")
+    age_range = request.form.get("dob")
+    gender = request.form.get("gender")
+    height_range = request.form.get("height")
+    features = request.form.get("features")
 
-    # Append the data to Google Sheets
-    append_row([name, email, message])
+    # Append data to Google Sheets
+    append_row([name, age_range, gender, height_range, features])
 
-    # Redirect back to the form with a simple success message
-    return f"<h2>Thanks, {name}! Your response has been recorded.</h2><a href='/'>Back to form</a>"
+    # Send a simple success message
+    return f"""
+    <h2>Your response has been recorded.</h2>
+    <a href='/'>Back to form</a>
+    """
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # For Raspberry Pi / remote access, use host="0.0.0.0"
+    app.run(debug=True, host="0.0.0.0")

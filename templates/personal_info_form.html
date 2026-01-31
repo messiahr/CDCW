@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Personal Information Form</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script>
     // JavaScript to update the height options based on selected gender
     function updateHeightOptions() {
@@ -50,7 +50,7 @@
 <body>
   <div class="form-container">
     <h1>Personal Information Form</h1>
-    <form action="#" method="post">
+    <form action="/submit" method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required>
       

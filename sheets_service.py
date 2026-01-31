@@ -21,7 +21,7 @@ def append_row(values):
     body = {"values": [values]}
     result = sheet.values().append(
         spreadsheetId=SPREADSHEET_ID,
-        range="Test",  # Replace Sheet1 with your tab name
+        range="IDs",  # Replace Sheet1 with your tab name
         valueInputOption="USER_ENTERED",
         body=body
     ).execute()
