@@ -13,7 +13,7 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=credentials)
 
 # Your spreadsheet ID (from the URL)
-SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"
+SPREADSHEET_ID = "1VYT1sS49L1WXsbX8XX3UKdB7aVkjqJRVP8IC5rE4PH4"
 
 def append_row(values):
     """Append a row of values to the first sheet in the spreadsheet"""
@@ -21,7 +21,7 @@ def append_row(values):
     body = {"values": [values]}
     result = sheet.values().append(
         spreadsheetId=SPREADSHEET_ID,
-        range="Sheet1",  # Replace Sheet1 with your tab name
+        range="Test",  # Replace Sheet1 with your tab name
         valueInputOption="USER_ENTERED",
         body=body
     ).execute()
