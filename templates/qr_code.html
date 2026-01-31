@@ -49,7 +49,7 @@
         <!-- Options will be populated here via JavaScript -->
     </div>
 
-    <button type="log">Submit Selection</button>
+    <button type="button" onclick="submitSelection()">Submit Selection</button>
 
     <script>
     // Fetch radio button values from the server
@@ -86,13 +86,28 @@
         function submitSelection() {
             const selectedOption = document.querySelector('input[name="service"]:checked');
 
-            if (selectedOption) {
-                alert(`You selected: ${selectedOption.value}`);
-                // Optionally, send the selected value to the server here
-                // sendSelectionToServer(selectedOption.value);
-            } else {
+            if (!selectedOption) {
                 alert("No selection made.");
+                return;
             }
+
+            fetch("/select-service", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    service: selectedOption.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Flask response:", data);
+                alert(`Service "${data.selected_service}" sent to server`);
+            })
+            .catch(err => {
+                console.error("Error sending selection:", err);
+            });
         }
 
         // Call the fetch function when the page loads

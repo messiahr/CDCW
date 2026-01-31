@@ -48,6 +48,18 @@ def scan():
         "barcode": barcode
     })
 
+@app.route("/select-service", methods=["POST"])
+def select_service():
+    data = request.json
+    service_id = data.get("service")
+
+    print("Selected service:", service_id)
+
+    # Store in session, DB, or use immediately
+    return jsonify({
+        "ok": True,
+        "selected_service": service_id
+    })
 
 # Add this route to fetch IDs from the Google Sheets
 @app.route("/get-ids")
