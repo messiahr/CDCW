@@ -8,6 +8,10 @@ def index():
     # Serve the form HTML
     return render_template("personal_info_form.html")  # rename your HTML file to this
 
+@app.route("/qr_code")
+def qr_code():
+    return render_template("qr_code_website.html")
+
 @app.route("/submit", methods=["POST"])
 def submit():
     # Get form values
