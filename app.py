@@ -10,7 +10,7 @@ def index():
 
 @app.route("/qr_code")
 def qr_code():
-    return render_template("qr_code_website.html")
+    return render_template("qr_code.html")
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -30,6 +30,25 @@ def submit():
     <a href='/'>Back to form</a>
     """
 
+@app.route("/scan", methods=["POST"])
+def scan():
+    data = request.json
+    barcode = data.get("code")
+
+    print("Scanned barcode:", barcode)
+
+    # Do whatever you want here:
+    # - lookup in database
+    # - store it
+    # - validate it
+    # - return product info, etc.
+
+    return jsonify({
+        "status": "success",
+        "barcode": barcode
+    })
+
+
 # Add this route to fetch IDs from the Google Sheets
 @app.route("/get-ids")
 def get_ids_from_sheet():
@@ -39,4 +58,4 @@ def get_ids_from_sheet():
 
 if __name__ == "__main__":
     # For Raspberry Pi / remote access, use host="0.0.0.0"
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=80)
