@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Style for the radio buttons to appear as circles */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .radio-group label {
+            margin: 10px 0;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #007bff;  /* Change the color of the radio button */
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        @media (max-width: 600px) {
+            #qr-reader {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="qr-reader" style="width:600px"></div>
+    <div id="qr-reader-results"></div>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Radio buttons for multiple choice -->
+    <p>Select Service:</p>
+    <div class="radio-group" id="id-radio-buttons">
+        <!-- Options will be populated here via JavaScript -->
+    </div>
+
+    <button type="log">Submit Selection</button>
+
+    <script>
+    // Fetch radio button values from the server
+        async function fetchRadioButtonValues() {
+            const response = await fetch('/get-ids');  // Call the '/get-ids' route
+            const ids = await response.json();  // Parse the JSON response from the server
+
+            // Get the container for radio buttons
+            const radioContainer = document.getElementById("id-radio-buttons");
+
+            // Clear the existing radio buttons (if any)
+            radioContainer.innerHTML = "";
+
+            // Populate the radio buttons with options
+            ids.forEach(id => {
+                const label = document.createElement("label");
+                const input = document.createElement("input");
+
+                input.type = "radio";
+                input.name = "service";  // Ensure only one option can be selected at a time
+                input.value = id;
+                input.id = `service-${id}`;
+
+                label.setAttribute("for", `service-${id}`);
+                label.textContent = id;
+
+                // Append the radio button to the container
+                label.prepend(input);
+                radioContainer.appendChild(label);
+            });
+        }
+
+        // Handle the form submission (submit the selected radio button value)
+        function submitSelection() {
+            const selectedOption = document.querySelector('input[name="service"]:checked');
+
+            if (selectedOption) {
+                alert(`You selected: ${selectedOption.value}`);
+                // Optionally, send the selected value to the server here
+                // sendSelectionToServer(selectedOption.value);
+            } else {
+                alert("No selection made.");
+            }
+        }
+
+        // Call the fetch function when the page loads
+        window.onload = function () {
+            fetchRadioButtonValues();
+        };
+    </script>
+</body>
+</html>
