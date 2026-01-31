@@ -1,6 +1,5 @@
-from google.oauth2 import service_account
 from googleapiclient.discovery import build
-import os
+from google.oauth2 import service_account
 
 # Load credentials from environment variable or JSON file
 SERVICE_ACCOUNT_FILE = "service_account.json"
@@ -26,3 +25,20 @@ def append_row(values):
         body=body
     ).execute()
     print(f"{result.get('updates').get('updatedCells')} cells appended.")
+    
+def get_ids():
+    """Fetch values from the range G1:Z1 in the 'IDs' sheet"""
+    sheet = service.spreadsheets()
+    result = sheet.values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range="IDs!G1:Z1"  # Specify the sheet and the range
+    ).execute()
+    
+    values = result.get('values', [])
+    
+    if not values:
+        print("No data found.")
+        return []
+    else:
+        # Return the list of IDs from the first row
+        return values[0]  # Since it's a single row, we get the first list of values
