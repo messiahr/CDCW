@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Information Form</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // JavaScript to update the height options based on selected gender
+    function updateHeightOptions() {
+      const gender = document.getElementById("gender").value;
+      const heightSelect = document.getElementById("height");
+      
+      // Clear existing options
+      heightSelect.innerHTML = "";
+      
+      let options;
+      
+      // Define height ranges based on gender
+      if (gender === "male") {
+        options = [
+          { value: "short", text: "Short (Under 5'6\")" },
+          { value: "medium", text: "Medium (5'6\"–6'0\")" },
+          { value: "tall", text: "Tall (Over 6'0\")" }
+        ];
+      } else if (gender === "female") {
+        options = [
+          { value: "short", text: "Short (Under 5'2\")" },
+          { value: "medium", text: "Medium (5'2\"–5'6\")" },
+          { value: "tall", text: "Tall (Over 5'6\")" }
+        ];
+      } else { // "other" or any non-specific gender
+        options = [
+          { value: "short", text: "Short (Under 5'4\")" },
+          { value: "medium", text: "Medium (5'4\"–5'8\")" },
+          { value: "tall", text: "Tall (Over 5'8\")" }
+        ];
+      }
+
+      // Append new options
+      options.forEach(option => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.text;
+        heightSelect.appendChild(optElement);
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Personal Information Form</h1>
+    <form action="#" method="post">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      
+      <label for="dob">Age Range:</label>
+      <select id="dob" name="dob" required>
+        <option value="teen">Teen</option>
+        <option value="young">Young Adult</option>
+        <option value="older">Older Adult</option>
+        <option value="senior">Senior</option>
+      </select>
+      
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender" required onchange="updateHeightOptions()">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="height">Height Range:</label>
+      <select id="height" name="height" required>
+        <!-- Height options will be dynamically added based on gender -->
+      </select>
+
+      <label for="features">Distinguishing Features:</label>
+      <textarea id="features" name="features" rows="4" cols="50"></textarea>
+      
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    // Initialize the height options on page load
+    window.onload = updateHeightOptions;
+  </script>
+</body>
+</html>
