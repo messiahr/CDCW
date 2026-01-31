@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "checking for uv install"
+
+if ! command -v uvx %> /dev/null; then
+	echo "installing uv"
+	curl -LsSf https://astral.sh/uv/install.sh | sh
+	source $HOME/.cargo/env
+fi
+
+echo "starting hotspot"
+
+nmcli device wifi hotspot ssid secret-pi password 123glizzy123 ifname wlan1 &&
+
+echo "starting flask server"
+
+
+uv run gunicorn --preload -w 2 -b 0.0.0.0:5000 app:app
