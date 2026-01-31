@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Scan QR Code</h1>
+        <div id="qr-reader" style="width: 100%; height: auto; margin-bottom: 20px;"></div>
+        <p id="qr-result">Scanned ID: </p>
+        <div style="display: flex; justify-content: space-around;">
+            <button onclick="startScanner()">Start Scanner</button>
+            <button onclick="stopScanner()">Stop Scanner</button>
+        </div>
+        <p>Or manually input ID:</p>
+        <input type="text" id="manual-id" placeholder="Enter ID">
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script>
+        let qrCodeScanner;
+
+        function startScanner() {
+            qrCodeScanner = new Html5Qrcode("qr-reader");
+
+            qrCodeScanner.start(
+                { facingMode: "environment" }, // Use the back camera
+                {
+                    fps: 10, // Frames per second for QR code scanning
+                    qrbox: 250, // Size of the scanning area
+                },
+                function (decodedText, decodedResult) {
+                    // Handle the scanned result
+                    document.getElementById("qr-result").innerText = `Scanned ID: ${decodedText}`;
+                    qrCodeScanner.stop(); // Stop scanning after getting the result
+                },
+                function (errorMessage) {
+                    // Optional: handle error or warnings
+                    console.log(errorMessage);
+                }
+            ).catch(err => {
+                console.error("Failed to start QR scanner", err);
+            });
+        }
+
+        function stopScanner() {
+            if (qrCodeScanner) {
+                qrCodeScanner.stop();
+            }
+        }
+    </script>
+</body>
+</html>
