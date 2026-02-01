@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from sheets_service import append_row, get_ids, get_all_records  # Make sure 'get_ids' is imported from sheets_service
+from sheets_service import append_row, get_services, generate_unique_id, get_all_records
 from thermal.thermal import TicketPrinter
 
 app = Flask(__name__)
@@ -11,7 +11,7 @@ def index():
 
 @app.route("/qr_code")
 def qr_code():
-    return render_template("qr_code_website.html")
+    return render_template("qr_code.html")
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -23,7 +23,8 @@ def submit():
     features = request.form.get("features")
 
     # Append data to Google Sheets
-    append_row([name, age_range, gender, height_range, features])
+    id = generate_unique_id([name, age_range, gender, height_range, features])
+    append_row([id, name, age_range, gender, height_range, features])
 
     # Send a simple success message
     return f"""
@@ -31,12 +32,43 @@ def submit():
     <a href='/'>Back to form</a>
     """
 
+@app.route("/scan", methods=["POST"])
+def scan():
+    data = request.json
+
+    qr_code = data.get("qr_code")
+    service = data.get("service")
+
+    if not qr_code or not service:
+        return jsonify({"message": "Missing data"}), 400
+
+    # Write to spreadsheet
+    append_row([qr_code, service])
+
+    return jsonify({
+        "message": f"Recorded {service} for {qr_code}"
+    })
+
+
+@app.route("/select-service", methods=["POST"])
+def select_service():
+    data = request.json
+    service_id = data.get("service")
+
+    print("Selected service:", service_id)
+
+    # Store in session, DB, or use immediately
+    return jsonify({
+        "ok": True,
+        "selected_service": service_id
+    })
+
 # Add this route to fetch IDs from the Google Sheets
-@app.route("/get-ids")
-def get_ids_from_sheet():
+@app.route("/get-services")
+def get_services_from_sheet():
     # Fetch the IDs from the Google Sheets API
-    ids = get_ids()
-    return jsonify(ids)  # Return the list as JSON
+    services = get_services()
+    return jsonify(services)  # Return the list as JSON
 
 @app.route("/get-records")
 def get_records_from_sheet():
@@ -68,4 +100,4 @@ def print_custom_route():
 
 if __name__ == "__main__":
     # For Raspberry Pi / remote access, use host="0.0.0.0"
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=80)
