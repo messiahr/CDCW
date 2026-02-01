@@ -10,11 +10,16 @@ OUT_ENDPOINT = 0x03
 
 class TicketPrinter:
     def __init__(self):
-        self.p = Usb(VENDOR_ID, PRODUCT_ID, 0, IN_ENDPOINT, OUT_ENDPOINT)
+        self.p = Usb(VENDOR_ID, PRODUCT_ID)#, 0, IN_ENDPOINT, OUT_ENDPOINT)
         # Load the image
         try:
             image_path = os.path.join(os.path.dirname(__file__), "waltham_center.png")
             self.image = Image.open(image_path)
+            max_width = 384
+            if self.image > max_width:
+                ratio = max_width / float(img.width)
+                new_height = int(img.height * ratio)
+                self.image = self.image.resize((max_width, new_height), Image.Resampling.NEAREST)
         except Exception as e:
             print(f"Error loading image: {e}")
             self.image = None
@@ -22,7 +27,7 @@ class TicketPrinter:
     def print_ticket(self, id):
         try:
             if self.image:
-                self.p.image(self.image)
+                self.p.image(self.image, impl="bitImageColumn")
             self.p.text("Scan this code: \n")
             self.p.qr(id, native=True, size=8)
             for i in range(5):
