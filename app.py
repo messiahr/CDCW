@@ -4,6 +4,9 @@ from thermal.thermal import TicketPrinter
 
 app = Flask(__name__)
 
+# Global printer instance
+printer = None
+
 
 @app.route("/")
 def index():
@@ -113,6 +116,7 @@ def get_records_from_sheet():
 
 @app.route("/print", methods=["POST"])
 def print_custom_route():
+    global printer
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body must be JSON"}), 400
@@ -126,11 +130,21 @@ def print_custom_route():
     except (ValueError, TypeError):
         return jsonify({"error": "newlines must be an integer"}), 400
 
-    tp = TicketPrinter()
     try:
-        tp.print_custom(text, qr_code, newlines)
+        # Reuse existing printer connection if possible
+        if printer is None:
+            printer = TicketPrinter()
+
+        printer.print_custom(text, qr_code, newlines)
         return jsonify({"status": "success"})
     except Exception as e:
+        # If an error occurs, close and reset the printer
+        if printer:
+            try:
+                printer.close()
+            except Exception:
+                pass
+            printer = None
         return jsonify({"error": str(e)}), 500
 
 
