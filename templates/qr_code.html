@@ -52,7 +52,7 @@
     <script>
     // Fetch radio button values from the server
         async function fetchRadioButtonValues() {
-            const response = await fetch('/get-ids');  // Call the '/get-ids' route
+            const response = await fetch('/get-services');  // Call the '/get-ids' route
             const ids = await response.json();  // Parse the JSON response from the server
 
             // Get the container for radio buttons

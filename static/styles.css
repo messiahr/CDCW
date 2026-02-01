@@ -1,48 +1,99 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+/* Reset some basic styling */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
+/* Body styling */
+body {
+  background-color: #f4f7f6;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Form container */
 .form-container {
   max-width: 600px;
   margin: 50px auto;
   background-color: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 30px;
+  border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
+/* Title */
 h1 {
   text-align: center;
-  color: #333;
+  color: #007bff;
+  margin-bottom: 20px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-}
-
+/* Labels */
 label {
-  margin: 10px 0 5px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: block;
   color: #555;
 }
 
-input, select, textarea, button {
+/* Inputs and selects */
+input[type="text"],
+select,
+textarea {
+  width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
 }
 
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Button styling */
 button {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
+  padding: 12px 20px;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .form-container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  button {
+    font-size: 18px;
+  }
 }

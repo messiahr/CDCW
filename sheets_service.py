@@ -90,7 +90,7 @@ def get_services():
     sheet = service.spreadsheets()
     result = sheet.values().get(
         spreadsheetId=SPREADSHEET_ID,
-        range="IDs!G1:Z1"  # Specify the sheet and the range
+        range="Record!B1:Z1"  # Specify the sheet and the range
     ).execute()
     
     values = result.get('values', [])
