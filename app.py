@@ -5,12 +5,12 @@ import datetime
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     # Serve the form HTML
     return render_template("personal_info_form.html")  # Rename your HTML file to this
 
-@app.route("/qr_code")
+@app.route("/qr_code", methods=["GET"])
 def qr_code():
     return render_template("qr_code.html")
 
