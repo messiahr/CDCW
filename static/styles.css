@@ -125,3 +125,51 @@ button:hover {
   margin-bottom: 5px;
   border-radius: 4px;
 }
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 50px;       /* Square button */
+    height: 50px;      /* Square button */
+    background-color: #007bff;
+    color: white;
+    font-size: 24px;    /* Arrow size */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;       /* Ensure it's on top of other content */
+}
+.back-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.back-button:focus {
+    outline: none;
+}
+
+.forward-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;       /* Square button */
+    height: 50px;      /* Square button */
+    background-color: #007bff;
+    color: white;
+    font-size: 24px;    /* Arrow size */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;       /* Ensure it's on top of other content */
+}
+.forward-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.forward-button:focus {
+    outline: none;
+}
