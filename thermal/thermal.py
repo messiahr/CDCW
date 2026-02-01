@@ -1,39 +1,53 @@
-
 from escpos.printer import Usb
+from PIL import Image
+import os
 
 VENDOR_ID = 0x0483
 PRODUCT_ID = 0x5743
+IN_ENDPOINT = 0x81
+OUT_ENDPOINT = 0x03
+
 
 class TicketPrinter:
+    def __init__(self):
+        self.p = Usb(VENDOR_ID, PRODUCT_ID, 0, IN_ENDPOINT, OUT_ENDPOINT)
+        # Load the image
+        try:
+            image_path = os.path.join(os.path.dirname(__file__), "waltham_center.png")
+            self.image = Image.open(image_path)
+        except Exception as e:
+            print(f"Error loading image: {e}")
+            self.image = None
+
     def print_ticket(self, id):
         try:
-            # This configuration just works.
-            # Tweak to work with your printer.
-            p = Usb(VENDOR_ID, PRODUCT_ID, 0, 0x81, 0x03)
-            p.text("Scan this code: \n")
-            p.qr(id, native=True, size = 8)
+            if self.image:
+                self.p.image(self.image)
+            self.p.text("Scan this code: \n")
+            self.p.qr(id, native=True, size=8)
             for i in range(5):
-                p.text("\n")
-            p.cut()
+                self.p.text("\n")
+            self.p.cut()
         except Exception as e:
             print(f"Error: {e}")
 
     def print_custom(self, text, qr_code=None, newlines=10):
         try:
-            p = Usb(VENDOR_ID, PRODUCT_ID, 0, 0x81, 0x03)
+            if self.image:
+                self.p.image(self.image)
             if text:
-                p.text(text)
-                if not text.endswith('\n'):
-                    p.text("\n")
-            
+                self.p.text(text)
+                if not text.endswith("\n"):
+                    self.p.text("\n")
+
             if qr_code:
                 # Using same settings as print_ticket, adjustable if needed
-                p.qr(qr_code, native=True, size=8)
-            
+                self.p.qr(qr_code, native=True, size=8)
+
             for i in range(newlines):
-                p.text("\n")
-                
-            p.cut()
+                self.p.text("\n")
+
+            self.p.cut()
         except Exception as e:
             print(f"Error: {e}")
             raise e

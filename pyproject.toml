@@ -8,5 +8,5 @@ dependencies = [
     "flask>=3.1.2",
     "google-api-python-client>=2.188.0",
     "gunicorn>=24.1.1",
-    "python-escpos>=3.1",
+    "python-escpos[usb]>=3.1",
 ]
