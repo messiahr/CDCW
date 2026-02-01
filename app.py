@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
-from sheets_service import append_row, get_services, generate_unique_id, get_all_records
+from sheets_service import append_row, append_record_row, get_services, generate_unique_id, get_all_records
 from thermal.thermal import TicketPrinter
+import datetime
 
 app = Flask(__name__)
 
@@ -38,12 +39,14 @@ def scan():
 
     qr_code = data.get("qr_code")
     service = data.get("service")
+    x = datetime.datetime.now()
+    date = x.strftime("%x")
 
     if not qr_code or not service:
         return jsonify({"message": "Missing data"}), 400
 
     # Write to spreadsheet
-    append_row([qr_code, service])
+    append_record_row([qr_code, service, date])
 
     return jsonify({
         "message": f"Recorded {service} for {qr_code}"

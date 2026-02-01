@@ -108,6 +108,16 @@ def append_row(values):
         # Update the hash table with the new ID and its corresponding row number
         id_to_row_map[generated_id] = row_number
 
+def append_record_row(values):
+    """Append a row of values to the 'Report' sheet in the spreadsheet."""
+    sheet = service.spreadsheets()
+    body = {"values": [values]}
+    sheet.values().append(
+        spreadsheetId=SPREADSHEET_ID,
+        range="Record",  # Replace with your actual tab name
+        valueInputOption="USER_ENTERED",
+        body=body,
+    ).execute()
 
 def get_services():
     """Fetch values from the range G1:Z1 in the 'IDs' sheet"""
@@ -116,7 +126,7 @@ def get_services():
         sheet.values()
         .get(
             spreadsheetId=SPREADSHEET_ID,
-            range="Record!B1:Z1",  # Specify the sheet and the range
+            range="Record!E1:J",  # Specify the sheet and the range
         )
         .execute()
     )
