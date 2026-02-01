@@ -1,5 +1,5 @@
 from escpos.printer import Usb
-from PIL import Image, ImageEnhance
+from PIL import Image
 import os
 
 VENDOR_ID = 0x0483
@@ -16,10 +16,6 @@ class TicketPrinter:
         try:
             image_path = os.path.join(os.path.dirname(__file__), "waltham_center.png")
             self.image = Image.open(image_path)
-
-            # Enhance contrast for better thermal printing
-            enhancer = ImageEnhance.Contrast(self.image)
-            self.image = enhancer.enhance(2.0)
 
             max_width = 576
             if self.image.size[0] > max_width:
@@ -66,3 +62,12 @@ class TicketPrinter:
         except Exception as e:
             print(f"Error: {e}")
             raise e
+
+    def close(self):
+        self.p.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
