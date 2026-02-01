@@ -16,9 +16,9 @@ class TicketPrinter:
             image_path = os.path.join(os.path.dirname(__file__), "waltham_center.png")
             self.image = Image.open(image_path)
             max_width = 384
-            if self.image > max_width:
-                ratio = max_width / float(img.width)
-                new_height = int(img.height * ratio)
+            if self.image.size[0] > max_width:
+                ratio = max_width / float(self.image.size[0])
+                new_height = int(self.image.size[1] * ratio)
                 self.image = self.image.resize((max_width, new_height), Image.Resampling.NEAREST)
         except Exception as e:
             print(f"Error loading image: {e}")
