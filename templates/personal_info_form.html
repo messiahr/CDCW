@@ -1,41 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Personal Information Form</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script>
-    // JavaScript to update the height options based on selected gender
-    function updateHeightOptions() {
-      const gender = document.getElementById("gender").value;
+    let allRecords = [];
+
+    // Fetch records on load
+    async function fetchRecords() {
+      try {
+        const response = await fetch('/get-records');
+        const data = await response.json();
+        allRecords = data;
+        filterResults();
+      } catch (error) {
+        console.error('Error fetching records:', error);
+      }
+    }
+
+    function renderResults(records) {
+      const container = document.getElementById("results");
+      const showDetails = document.getElementById("show_details").checked;
+
+      container.innerHTML = "<h3>Live Matches (" + Math.min(records.length, 10) + " shown)</h3>";
+
+      // Cap at 10 results
+      const displayRecords = records.slice(0, 10);
+
+      if (displayRecords.length === 0) {
+        container.innerHTML += "<p>No matches found.</p>";
+        return;
+      }
+
+      displayRecords.forEach(record => {
+        // record indices: 0:Name, 1:Age, 2:Gender, 3:Height, 4:Hair Color, 5:Hair Length, 6:Mobility Aid, 7:Features, 8:Add Info
+        const div = document.createElement("div");
+        div.className = "result-item";
+
+        let content = `<strong>${record[0]}</strong> (${record[1]}, ${record[2]}) - ${record[3]}`;
+
+        if (showDetails) {
+          content += `<br>Hair: ${record[4] || '-'}, ${record[5] || '-'} | Mobility: ${record[6] || '-'}`;
+          if (record[7]) content += `<br><em>Features:</em> ${record[7]}`;
+          if (record[8]) content += `<br><em>Info:</em> ${record[8]}`;
+        }
+
+        div.innerHTML = content;
+        container.appendChild(div);
+      });
+    }
+
+    function filterResults() {
+      const nameFilter = document.getElementById("name").value.toLowerCase().trim();
+      const dobFilter = document.getElementById("dob").value;
+      const genderFilter = document.getElementById("gender").value;
+      const heightFilter = document.getElementById("height").value;
+      const hairColorFilter = document.getElementById("hair_color").value;
+      const hairLengthFilter = document.getElementById("hair_length").value;
+      const mobilityAidFilter = document.getElementById("mobility_aid").value;
+      // Features filter is removed from logic as requested
+
+      const filtered = allRecords.filter(record => {
+        // valid checks if the record field exists and matches the filter
+        // New Order: 0:Name, 1:Age, 2:Gender, 3:Height, 4:Hair Color, 5:Hair Length, 6:Mobility Aid, 7:Features, 8:Add Info
+
+        // Name filter (partial match)
+        if (nameFilter) {
+          const recName = record[0] != null ? String(record[0]).toLowerCase() : "";
+          if (!recName.includes(nameFilter)) return false;
+        }
+
+        // Age filter (exact match, case-insensitive)
+        if (dobFilter) {
+          const recAge = record[1] != null ? String(record[1]).toLowerCase() : "";
+          if (recAge !== dobFilter) return false;
+        }
+
+        // Gender filter (exact match, case-insensitive)
+        if (genderFilter) {
+          const recGender = record[2] != null ? String(record[2]).toLowerCase() : "";
+          // Handle potential differences in terminology if any
+          if (recGender !== genderFilter) return false;
+        }
+
+        // Height filter (exact match, case-insensitive)
+        if (heightFilter) {
+          const recHeight = record[3] != null ? String(record[3]).toLowerCase() : "";
+          if (recHeight !== heightFilter) return false;
+        }
+
+        // Hair Color filter
+        if (hairColorFilter) {
+          const recHairColor = record[4] != null ? String(record[4]).toLowerCase() : "";
+          if (!recHairColor.includes(hairColorFilter)) return false;
+        }
+
+        // Hair Length filter
+        if (hairLengthFilter) {
+          const recHairLength = record[5] != null ? String(record[5]).toLowerCase() : "";
+          if (!recHairLength.includes(hairLengthFilter)) return false;
+        }
+
+        // Mobility Aid filter
+        if (mobilityAidFilter) {
+          const recMobility = record[6] != null ? String(record[6]).toLowerCase() : "";
+          if (!recMobility.includes(mobilityAidFilter)) return false;
+        }
+
+        return true;
+      });
+
+      renderResults(filtered);
+    }
+
+    // JavaScript to populate height options (gender agnostic)
+    function populateHeightOptions() {
       const heightSelect = document.getElementById("height");
-      
+
       // Clear existing options
       heightSelect.innerHTML = "";
-      
-      let options;
-      
-      // Define height ranges based on gender
-      if (gender === "male") {
-        options = [
-          { value: "short", text: "Short (Under 5'6\")" },
-          { value: "medium", text: "Medium (5'6\"–6'0\")" },
-          { value: "tall", text: "Tall (Over 6'0\")" }
-        ];
-      } else if (gender === "female") {
-        options = [
-          { value: "short", text: "Short (Under 5'2\")" },
-          { value: "medium", text: "Medium (5'2\"–5'6\")" },
-          { value: "tall", text: "Tall (Over 5'6\")" }
-        ];
-      } else { // "other" or any non-specific gender
-        options = [
-          { value: "short", text: "Short (Under 5'4\")" },
-          { value: "medium", text: "Medium (5'4\"–5'8\")" },
-          { value: "tall", text: "Tall (Over 5'8\")" }
-        ];
-      }
+
+      let options = [];
+
+      // Add default option
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = "Select Height Range";
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      heightSelect.appendChild(defaultOption);
+
+      // Define static height ranges
+      options = [
+        { value: "short", text: "Short" },
+        { value: "average", text: "Average" },
+        { value: "tall", text: "Tall" }
+      ];
 
       // Append new options
       options.forEach(option => {
@@ -47,43 +150,86 @@
     }
   </script>
 </head>
+
 <body>
   <div class="form-container">
     <h1>Personal Information Form</h1>
     <form action="/submit" method="post">
       <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required>
-      
+      <input type="text" id="name" name="name" required oninput="filterResults()">
+
       <label for="dob">Age Range:</label>
-      <select id="dob" name="dob" required>
+      <select id="dob" name="dob" required onchange="filterResults()">
+        <option value="" selected disabled>Select Age Range</option>
         <option value="teen">Teen</option>
         <option value="young">Young Adult</option>
         <option value="older">Older Adult</option>
         <option value="senior">Senior</option>
       </select>
-      
+
       <label for="gender">Gender:</label>
-      <select id="gender" name="gender" required onchange="updateHeightOptions()">
+      <select id="gender" name="gender" required onchange="filterResults()">
+        <option value="" selected disabled>Select Gender</option>
         <option value="male">Male</option>
         <option value="female">Female</option>
         <option value="other">Other</option>
       </select>
 
       <label for="height">Height Range:</label>
-      <select id="height" name="height" required>
+      <select id="height" name="height" required onchange="filterResults()">
         <!-- Height options will be dynamically added based on gender -->
+      </select>
+
+      <label for="hair_color">Hair Color:</label>
+      <select id="hair_color" name="hair_color" onchange="filterResults()">
+        <option value="" selected disabled>Select Hair Color</option>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="hair_length">Hair Length:</label>
+      <select id="hair_length" name="hair_length" onchange="filterResults()">
+        <option value="" selected disabled>Select Hair Length</option>
+        <option value="bald">Bald</option>
+        <option value="short">Short</option>
+        <option value="long">Long</option>
+        <option value="covered">Covered</option>
+      </select>
+
+      <label for="mobility_aid">Mobility Aid:</label>
+      <select id="mobility_aid" name="mobility_aid" onchange="filterResults()">
+        <option value="" selected disabled>Select Mobility Aid</option>
+        <option value="none">None</option>
+        <option value="cane">Cane</option>
+        <option value="walker">Walker</option>
+        <option value="wheelchair">Wheelchair</option>
+        <option value="service animal">Service Animal</option>
       </select>
 
       <label for="features">Distinguishing Features:</label>
       <textarea id="features" name="features" rows="4" cols="50"></textarea>
-      
+
       <button type="submit">Submit</button>
     </form>
+
+    <div style="margin-top: 20px;">
+      <label>
+        <input type="checkbox" id="show_details" onchange="filterResults()">
+        Show Distinguishing Features & Additional Info
+      </label>
+    </div>
+
+    <div id="results" class="results-container"></div>
   </div>
 
   <script>
-    // Initialize the height options on page load
-    window.onload = updateHeightOptions;
+    // Initialize the height options on page load and fetch records
+    window.onload = function () {
+      populateHeightOptions();
+      fetchRecords();
+    };
   </script>
 </body>
+
 </html>

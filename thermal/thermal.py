@@ -17,3 +17,23 @@ class TicketPrinter:
             p.cut()
         except Exception as e:
             print(f"Error: {e}")
+
+    def print_custom(self, text, qr_code=None, newlines=10):
+        try:
+            p = Usb(VENDOR_ID, PRODUCT_ID, 0, 0x81, 0x03)
+            if text:
+                p.text(text)
+                if not text.endswith('\n'):
+                    p.text("\n")
+            
+            if qr_code:
+                # Using same settings as print_ticket, adjustable if needed
+                p.qr(qr_code, native=True, size=8)
+            
+            for i in range(newlines):
+                p.text("\n")
+                
+            p.cut()
+        except Exception as e:
+            print(f"Error: {e}")
+            raise e

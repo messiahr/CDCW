@@ -88,16 +88,35 @@ def append_row(values):
 def get_services():
     """Fetch values from the range G1:Z1 in the 'IDs' sheet"""
     sheet = service.spreadsheets()
-    result = sheet.values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range="IDs!G1:Z1"  # Specify the sheet and the range
-    ).execute()
-    
-    values = result.get('values', [])
-    
+    result = (
+        sheet.values()
+        .get(
+            spreadsheetId=SPREADSHEET_ID,
+            range="IDs!G1:Z1",  # Specify the sheet and the range
+        )
+        .execute()
+    )
+
+    values = result.get("values", [])
+
     if not values:
         print("No data found.")
         return []
     else:
         # Return the list of IDs from the first row
         return values[0]  # Since it's a single row, we get the first list of values
+
+def get_all_records():
+    """Fetch all records from columns B to J in the 'IDs' sheet"""
+    sheet = service.spreadsheets()
+    result = (
+        sheet.values()
+        .get(
+            spreadsheetId=SPREADSHEET_ID,
+            range="IDs!B2:J",  # Fetch from column B (Name) to J (Additional Information)
+        )
+        .execute()
+    )
+
+    values = result.get("values", [])
+    return values

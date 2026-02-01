@@ -76,3 +76,16 @@ button:hover {
         width: 100%;
     }
 }
+
+.results-container {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 2px solid #ddd;
+}
+.result-item {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
