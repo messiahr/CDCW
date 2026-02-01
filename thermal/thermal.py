@@ -33,7 +33,7 @@ class TicketPrinter:
             if self.image:
                 self.p.image(self.image, impl="bitImageColumn")
             self.p.text("Scan this code: \n")
-            self.p.qr(id, native=True, size=8)
+            self.p.qr(id, native=False, size=16)
             for i in range(5):
                 self.p.text("\n")
             self.p.cut()
@@ -52,7 +52,7 @@ class TicketPrinter:
 
             if qr_code:
                 # Using same settings as print_ticket, adjustable if needed
-                self.p.qr(qr_code, native=True, size=8)
+                self.p.qr(qr_code, native=False, size=16)
 
             for i in range(newlines):
                 self.p.text("\n")
