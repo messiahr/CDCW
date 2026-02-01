@@ -45,7 +45,7 @@ class TicketPrinter:
         except Exception as e:
             print(f"Error: {e}")
 
-    def print_custom(self, text, qr_code=None, newlines=10):
+    def print_custom(self, text, qr_code=None, newlines=5):
         try:
             self.p.set(align="center")
             if self.image:
