@@ -34,20 +34,20 @@ def submit():
 @app.route("/scan", methods=["POST"])
 def scan():
     data = request.json
-    barcode = data.get("code")
 
-    print("Scanned barcode:", barcode)
+    qr_code = data.get("qr_code")
+    service = data.get("service")
 
-    # Do whatever you want here:
-    # - lookup in database
-    # - store it
-    # - validate it
-    # - return product info, etc.
+    if not qr_code or not service:
+        return jsonify({"message": "Missing data"}), 400
+
+    # Write to spreadsheet
+    append_row([qr_code, service])
 
     return jsonify({
-        "status": "success",
-        "barcode": barcode
+        "message": f"Recorded {service} for {qr_code}"
     })
+
 
 @app.route("/select-service", methods=["POST"])
 def select_service():

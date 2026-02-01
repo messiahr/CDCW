@@ -16,34 +16,33 @@ docReady(function() {
         "qr-reader", { fps: 10, qrbox: 250 });
 
     function onScanSuccess(decodedText, decodedResult) {
-        if (decodedText !== lastResult) {
-            ++countResults;
-            lastResult = decodedText;
-            console.log(`Scan result = ${decodedText}`, decodedResult);
+        const selectedOption = document.querySelector('input[name="service"]:checked');
 
-            resultContainer.innerHTML += `<div>[${countResults}] - ${decodedText}</div>`;
-
-            // 👉 SEND TO FLASK
-            fetch("/scan", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    code: decodedText
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Flask response:", data);
-            })
-            .catch(err => {
-                console.error("Error sending scan:", err);
-            });
-
-            // Optional: To close the QR code scannign after the result is found
-            html5QrcodeScanner.clear();
+        if (!selectedOption) {
+            alert("Please select a service first.");
+            return;
         }
+
+        // 👉 SEND TO FLASK
+        fetch("/scan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                code: decodedText
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Flask response:", data);
+        })
+        .catch(err => {
+            console.error("Error sending scan:", err);
+        });
+
+        // Optional: To close the QR code scannign after the result is found
+        // html5QrcodeScanner.clear();
     }
 
     // Optional callback for error, can be ignored.
