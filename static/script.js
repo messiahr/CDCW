@@ -13,9 +13,10 @@ docReady(function() {
     var lastResult, countResults = 0;
 
     var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 10, qrbox: 250 });
+        "qr-reader", { fps: 10, qrbox: 250, showDisplay: false });
 
     function onScanSuccess(decodedText, decodedResult) {
+
         const selectedOption = document.querySelector('input[name="service"]:checked');
 
         if (!selectedOption) {
@@ -30,7 +31,8 @@ docReady(function() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                code: decodedText
+                qr_code: decodedText,
+                service: selectedOption.value
             })
         })
         .then(response => response.json())
@@ -43,6 +45,8 @@ docReady(function() {
 
         // Optional: To close the QR code scannign after the result is found
         // html5QrcodeScanner.clear();
+
+        alert("QR Code scanned");
     }
 
     // Optional callback for error, can be ignored.
