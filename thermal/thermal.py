@@ -10,12 +10,13 @@ OUT_ENDPOINT = 0x03
 
 class TicketPrinter:
     def __init__(self):
-        self.p = Usb(VENDOR_ID, PRODUCT_ID)#, 0, IN_ENDPOINT, OUT_ENDPOINT)
+        self.p = Usb(VENDOR_ID, PRODUCT_ID, profile="TM-T88IV")
+        self.p.profile.media['width']['pixels'] = 576
         # Load the image
         try:
             image_path = os.path.join(os.path.dirname(__file__), "waltham_center.png")
             self.image = Image.open(image_path)
-            max_width = 384
+            max_width = 576
             if self.image.size[0] > max_width:
                 ratio = max_width / float(self.image.size[0])
                 new_height = int(self.image.size[1] * ratio)
