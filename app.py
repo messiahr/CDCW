@@ -4,14 +4,17 @@ from thermal.thermal import TicketPrinter
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def index():
     # Serve the form HTML
     return render_template("personal_info_form.html")  # Rename your HTML file to this
 
+
 @app.route("/qr_code")
 def qr_code():
     return render_template("qr_code.html")
+
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -20,17 +23,51 @@ def submit():
     age_range = request.form.get("dob")
     gender = request.form.get("gender")
     height_range = request.form.get("height")
+    hair_color = request.form.get("hair_color")
+    hair_length = request.form.get("hair_length")
+    mobility_aid = request.form.get("mobility_aid")
     features = request.form.get("features")
+    additional_info = request.form.get("additional_info")
 
     # Append data to Google Sheets
-    id = generate_unique_id([name, age_range, gender, height_range, features])
-    append_row([id, name, age_range, gender, height_range, features])
+    # Order: ID, Name, Age, Gender, Height, Hair Color, Hair Length, Mobility Aid, Features, Add Info
+    id = generate_unique_id(
+        [
+            name,
+            age_range,
+            gender,
+            height_range,
+            hair_color,
+            hair_length,
+            mobility_aid,
+            features,
+            additional_info,
+        ]
+    )
+    append_row(
+        [
+            id,
+            name,
+            age_range,
+            gender,
+            height_range,
+            hair_color,
+            hair_length,
+            mobility_aid,
+            features,
+            additional_info,
+        ]
+    )
 
-    # Send a simple success message
-    return f"""
-    <h2>Your response has been recorded.</h2>
-    <a href='/'>Back to form</a>
-    """
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Your response has been recorded.",
+            "id": id,
+            "name": name,
+        }
+    )
+
 
 @app.route("/scan", methods=["POST"])
 def scan():
@@ -45,9 +82,7 @@ def scan():
     # Write to spreadsheet
     append_row([qr_code, service])
 
-    return jsonify({
-        "message": f"Recorded {service} for {qr_code}"
-    })
+    return jsonify({"message": f"Recorded {service} for {qr_code}"})
 
 
 @app.route("/select-service", methods=["POST"])
@@ -58,10 +93,8 @@ def select_service():
     print("Selected service:", service_id)
 
     # Store in session, DB, or use immediately
-    return jsonify({
-        "ok": True,
-        "selected_service": service_id
-    })
+    return jsonify({"ok": True, "selected_service": service_id})
+
 
 # Add this route to fetch IDs from the Google Sheets
 @app.route("/get-services")
@@ -70,11 +103,13 @@ def get_services_from_sheet():
     services = get_services()
     return jsonify(services)  # Return the list as JSON
 
+
 @app.route("/get-records")
 def get_records_from_sheet():
     # Fetch all records from the Google Sheets API
     records = get_all_records()
     return jsonify(records)
+
 
 @app.route("/print", methods=["POST"])
 def print_custom_route():
@@ -97,6 +132,7 @@ def print_custom_route():
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     # For Raspberry Pi / remote access, use host="0.0.0.0"

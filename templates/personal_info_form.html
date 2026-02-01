@@ -21,6 +21,34 @@
       }
     }
 
+    async function printTicket(id, name, skipConfirm = false) {
+      if (!skipConfirm && !confirm(`Print ticket for ${name}?`)) return;
+
+      try {
+        const response = await fetch('/print', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text: `Name: ${name}\nID: ${id}`,
+            qr_code: id,
+            newlines: 5
+          })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          alert('Ticket printed successfully!');
+        } else {
+          alert('Error printing ticket: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to send print request');
+      }
+    }
+
     function renderResults(records) {
       const container = document.getElementById("results");
       const showDetails = document.getElementById("show_details").checked;
@@ -36,19 +64,31 @@
       }
 
       displayRecords.forEach(record => {
-        // record indices: 0:Name, 1:Age, 2:Gender, 3:Height, 4:Hair Color, 5:Hair Length, 6:Mobility Aid, 7:Features, 8:Add Info
+        // record indices: 0:ID, 1:Name, 2:Age, 3:Gender, 4:Height, 5:Hair Color, 6:Hair Length, 7:Mobility Aid, 8:Features, 9:Add Info
         const div = document.createElement("div");
         div.className = "result-item";
+        div.style.display = "flex";
+        div.style.justifyContent = "space-between";
+        div.style.alignItems = "center";
 
-        let content = `<strong>${record[0]}</strong> (${record[1]}, ${record[2]}) - ${record[3]}`;
+        let content = `<div style="flex-grow: 1;"><strong>${record[1]}</strong> (${record[2]}, ${record[3]}) - ${record[4]}`;
 
         if (showDetails) {
-          content += `<br>Hair: ${record[4] || '-'}, ${record[5] || '-'} | Mobility: ${record[6] || '-'}`;
-          if (record[7]) content += `<br><em>Features:</em> ${record[7]}`;
-          if (record[8]) content += `<br><em>Info:</em> ${record[8]}`;
+          content += `<br>Hair: ${record[5] || '-'}, ${record[6] || '-'} | Mobility: ${record[7] || '-'}`;
+          if (record[8]) content += `<br><em>Features:</em> ${record[8]}`;
+          if (record[9]) content += `<br><em>Info:</em> ${record[9]}`;
         }
+        content += `</div>`;
+
+        const btn = document.createElement("button");
+        btn.className = "print-ticket-btn";
+        btn.textContent = "Print Ticket";
+        btn.onclick = () => printTicket(record[0], record[1]);
+        btn.style.marginLeft = "10px";
 
         div.innerHTML = content;
+        div.appendChild(btn);
+
         container.appendChild(div);
       });
     }
@@ -65,48 +105,48 @@
 
       const filtered = allRecords.filter(record => {
         // valid checks if the record field exists and matches the filter
-        // New Order: 0:Name, 1:Age, 2:Gender, 3:Height, 4:Hair Color, 5:Hair Length, 6:Mobility Aid, 7:Features, 8:Add Info
+        // New Order: 0:ID, 1:Name, 2:Age, 3:Gender, 4:Height, 5:Hair Color, 6:Hair Length, 7:Mobility Aid, 8:Features, 9:Add Info
 
         // Name filter (partial match)
         if (nameFilter) {
-          const recName = record[0] != null ? String(record[0]).toLowerCase() : "";
+          const recName = record[1] != null ? String(record[1]).toLowerCase() : "";
           if (!recName.includes(nameFilter)) return false;
         }
 
         // Age filter (exact match, case-insensitive)
         if (dobFilter) {
-          const recAge = record[1] != null ? String(record[1]).toLowerCase() : "";
+          const recAge = record[2] != null ? String(record[2]).toLowerCase() : "";
           if (recAge !== dobFilter) return false;
         }
 
         // Gender filter (exact match, case-insensitive)
         if (genderFilter) {
-          const recGender = record[2] != null ? String(record[2]).toLowerCase() : "";
+          const recGender = record[3] != null ? String(record[3]).toLowerCase() : "";
           // Handle potential differences in terminology if any
           if (recGender !== genderFilter) return false;
         }
 
         // Height filter (exact match, case-insensitive)
         if (heightFilter) {
-          const recHeight = record[3] != null ? String(record[3]).toLowerCase() : "";
+          const recHeight = record[4] != null ? String(record[4]).toLowerCase() : "";
           if (recHeight !== heightFilter) return false;
         }
 
         // Hair Color filter
         if (hairColorFilter) {
-          const recHairColor = record[4] != null ? String(record[4]).toLowerCase() : "";
+          const recHairColor = record[5] != null ? String(record[5]).toLowerCase() : "";
           if (!recHairColor.includes(hairColorFilter)) return false;
         }
 
         // Hair Length filter
         if (hairLengthFilter) {
-          const recHairLength = record[5] != null ? String(record[5]).toLowerCase() : "";
+          const recHairLength = record[6] != null ? String(record[6]).toLowerCase() : "";
           if (!recHairLength.includes(hairLengthFilter)) return false;
         }
 
         // Mobility Aid filter
         if (mobilityAidFilter) {
-          const recMobility = record[6] != null ? String(record[6]).toLowerCase() : "";
+          const recMobility = record[7] != null ? String(record[7]).toLowerCase() : "";
           if (!recMobility.includes(mobilityAidFilter)) return false;
         }
 
@@ -210,7 +250,10 @@
       <label for="features">Distinguishing Features:</label>
       <textarea id="features" name="features" rows="4" cols="50"></textarea>
 
-      <button type="submit">Submit</button>
+      <label for="additional_info">Additional Information:</label>
+      <textarea id="additional_info" name="additional_info" rows="4" cols="50"></textarea>
+
+      <button type="submit">Submit & Generate New Ticket</button>
     </form>
 
     <div style="margin-top: 20px;">
@@ -228,6 +271,30 @@
     window.onload = function () {
       populateHeightOptions();
       fetchRecords();
+
+      document.querySelector('form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        try {
+          const response = await fetch('/submit', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await response.json();
+
+          if (result.status === 'success') {
+            this.reset();
+            fetchRecords();
+            await printTicket(result.id, result.name, true);
+          } else {
+            alert('Error submitting: ' + (result.message || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to submit form');
+        }
+      });
     };
   </script>
 </body>

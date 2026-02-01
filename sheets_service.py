@@ -22,7 +22,8 @@ id_to_row_map = {}
 
 def generate_unique_id(form_data):
     """Generate a 4-character alphanumeric ID based on the form data."""
-    hash_input = f"{form_data[0]}{form_data[1]}{form_data[2]}{form_data[3]}"
+    # Concatenate all non-None values string representation
+    hash_input = "".join(str(item) for item in form_data if item is not None)
     hash_value = sum(ord(c) for c in hash_input)  # Simple sum of character ordinals
     random.seed(hash_value)
     return "".join(random.choices(string.ascii_letters + string.digits, k=4))
@@ -31,9 +32,14 @@ def generate_unique_id(form_data):
 def append_row(values):
     """Append a row of values to the first sheet in the spreadsheet with ID in the leftmost column."""
     generated_id = values[0]  # Assuming the unique ID is the first element in the row
+
+    # Values structure:
+    # 0: ID, 1: Name, 2: Age, 3: Gender, 4: Height, 5: Hair Color, 6: Hair Length,
+    # 7: Mobility, 8: Features, 9: Additional Info
+
     distinguishing_features = (
-        values[5] if len(values) > 5 else ""
-    )  # Assuming features are in column F (index 5)
+        values[8] if len(values) > 8 else ""
+    )  # Features are in column I (index 8)
 
     # Check if the ID already exists in the hash table
     if generated_id in id_to_row_map:
@@ -41,13 +47,13 @@ def append_row(values):
         row_number = id_to_row_map[generated_id]
         print(f"ID {generated_id} already exists in row {row_number}.")
 
-        # Fetch the existing row data from the sheet to get the current distinguishing features
+        # Fetch the existing row data from the sheet
         sheet = service.spreadsheets()
         result = (
             sheet.values()
             .get(
                 spreadsheetId=SPREADSHEET_ID,
-                range=f"IDs!A{row_number}:F{row_number}",  # Fetch columns A to F for the row
+                range=f"IDs!A{row_number}:J{row_number}",  # Fetch columns A to J
             )
             .execute()
         )
@@ -55,8 +61,13 @@ def append_row(values):
         values_in_row = result.get("values", [])
 
         if values_in_row:
-            # Get existing distinguishing features from column F
-            existing_features = values_in_row[0][5] if len(values_in_row[0]) > 5 else ""
+            current_row = values_in_row[0]
+            # Ensure the row has enough columns padded
+            while len(current_row) < 10:
+                current_row.append("")
+
+            # Get existing distinguishing features from column I (index 8)
+            existing_features = current_row[8]
 
             # Combine existing and new distinguishing features, ensuring they are separated by "; "
             if existing_features and distinguishing_features:
@@ -64,28 +75,31 @@ def append_row(values):
                     f"{existing_features}; {distinguishing_features}"
                 )
 
-            # Now update the row with the combined distinguishing features
-            update_body = {
-                "values": [
-                    [
-                        values[0],
-                        values[1],
-                        values[2],
-                        values[3],
-                        values[4],
-                        distinguishing_features,
-                    ]
-                ]
-            }
+            # Prepare updated row
+            # We are overwriting other details with the latest submission, but appending features
+            updated_row = [
+                values[0],  # ID
+                values[1],  # Name
+                values[2],  # Age
+                values[3],  # Gender
+                values[4],  # Height
+                values[5],  # Hair Color
+                values[6],  # Hair Length
+                values[7],  # Mobility
+                distinguishing_features,  # Merged features
+                values[9] if len(values) > 9 else "",  # Additional Info (overwrite)
+            ]
 
-            # Update the row with the new distinguishing features
+            # Update the row
+            update_body = {"values": [updated_row]}
+
             sheet.values().update(
                 spreadsheetId=SPREADSHEET_ID,
-                range=f"IDs!A{row_number}:F{row_number}",
+                range=f"IDs!A{row_number}:J{row_number}",
                 valueInputOption="USER_ENTERED",
                 body=update_body,
             ).execute()
-            print(f"Row {row_number} updated with new distinguishing features.")
+            print(f"Row {row_number} updated.")
     else:
         # If the ID doesn't exist, append a new row to the sheet
         sheet = service.spreadsheets()
@@ -131,13 +145,13 @@ def get_services():
 
 
 def get_all_records():
-    """Fetch all records from columns B to J in the 'IDs' sheet"""
+    """Fetch all records from columns A to J in the 'IDs' sheet"""
     sheet = service.spreadsheets()
     result = (
         sheet.values()
         .get(
             spreadsheetId=SPREADSHEET_ID,
-            range="IDs!B2:J",  # Fetch from column B (Name) to J (Additional Information)
+            range="IDs!A2:J",  # Fetch from column A (ID) to J (Additional Information)
         )
         .execute()
     )

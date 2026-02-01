@@ -41,11 +41,10 @@ label {
   color: #555;
 }
 
-/* Inputs and selects */
-input[type="text"],
+input,
 select,
-textarea {
-  width: 100%;
+textarea,
+button {
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 8px;
@@ -85,32 +84,33 @@ button:hover {
 
 /* Style for the radio buttons to appear as circles */
 .radio-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .radio-group label {
-    margin: 10px 0;
-    font-size: 18px;
-    cursor: pointer;
+  margin: 10px 0;
+  font-size: 18px;
+  cursor: pointer;
 }
 
 .radio-group input[type="radio"] {
-    margin-right: 10px;
-    accent-color: #007bff;  /* Change the color of the radio button */
+  margin-right: 10px;
+  accent-color: #007bff;
+  /* Change the color of the radio button */
 }
 
 #qr-reader {
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
 }
 
 @media (max-width: 600px) {
-    #qr-reader {
-        width: 100%;
-    }
+  #qr-reader {
+    width: 100%;
+  }
 }
 
 .results-container {
@@ -118,10 +118,15 @@ button:hover {
   padding: 10px;
   border-top: 2px solid #ddd;
 }
+
 .result-item {
   background: #fff;
   border: 1px solid #eee;
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 4px;
+}
+/* Specialized button styles */
+.print-ticket-btn {
+  width: 160px; 
 }
