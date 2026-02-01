@@ -1,6 +1,7 @@
 from escpos.printer import Usb
 from PIL import Image
 import os
+import usb.util
 
 VENDOR_ID = 0x0483
 PRODUCT_ID = 0x5743
@@ -64,7 +65,13 @@ class TicketPrinter:
             raise e
 
     def close(self):
-        self.p.close()
+        try:
+            if hasattr(self.p, "device"):
+                usb.util.dispose_resources(self.p.device)
+            elif hasattr(self.p, "close"):
+                self.p.close()
+        except Exception as e:
+            print(f"Error closing printer: {e}")
 
     def __enter__(self):
         return self
