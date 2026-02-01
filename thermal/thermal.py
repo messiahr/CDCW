@@ -2,6 +2,8 @@ from escpos.printer import Usb
 from PIL import Image
 import os
 import usb.util
+import usb.core
+import time
 
 VENDOR_ID = 0x0483
 PRODUCT_ID = 0x5743
@@ -11,7 +13,18 @@ OUT_ENDPOINT = 0x03
 
 class TicketPrinter:
     def __init__(self):
-        self.p = Usb(VENDOR_ID, PRODUCT_ID, profile="TM-T88IV")
+        try:
+            self.p = Usb(VENDOR_ID, PRODUCT_ID, profile="TM-T88IV")
+        except Exception as e:
+            # Handle Resource Busy (Errno 16) by attempting to reset the device
+            if "Resource busy" in str(e) or (hasattr(e, "errno") and e.errno == 16):
+                print("Printer resource busy. Attempting to force release...")
+                self._force_release()
+                time.sleep(1)
+                self.p = Usb(VENDOR_ID, PRODUCT_ID, profile="TM-T88IV")
+            else:
+                raise e
+
         self.p.profile.media["width"]["pixels"] = 576
         # Load the image
         try:
@@ -28,6 +41,23 @@ class TicketPrinter:
         except Exception as e:
             print(f"Error loading image: {e}")
             self.image = None
+
+    def _force_release(self):
+        try:
+            dev = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
+            if dev:
+                if dev.is_kernel_driver_active(0):
+                    try:
+                        dev.detach_kernel_driver(0)
+                        print("Detached kernel driver")
+                    except usb.core.USBError as e:
+                        print(f"Could not detach kernel driver: {e}")
+
+                # Try to dispose resources if possible, or reset
+                # dev.reset() can work but causes re-enumeration.
+                # Sometimes just detaching kernel driver is enough.
+        except Exception as e:
+            print(f"Error during force release: {e}")
 
     def print_ticket(self, id):
         try:

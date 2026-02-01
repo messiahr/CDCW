@@ -133,11 +133,16 @@ def print_custom_route():
     try:
         # Reuse existing printer connection if possible
         if printer is None:
+            print("Initializing new printer connection...")
             printer = TicketPrinter()
+            print("Printer connected.")
+        else:
+            print("Reusing existing printer connection.")
 
         printer.print_custom(text, qr_code, newlines)
         return jsonify({"status": "success"})
     except Exception as e:
+        print(f"Print error: {e}")
         # If an error occurs, close and reset the printer
         if printer:
             try:
