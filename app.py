@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from sheets_service import append_row, get_ids  # Make sure 'get_ids' is imported from sheets_service
+from sheets_service import append_row, get_services, generate_unique_id  # Make sure 'get_ids' is imported from sheets_service
 
 app = Flask(__name__)
 
@@ -22,7 +22,8 @@ def submit():
     features = request.form.get("features")
 
     # Append data to Google Sheets
-    append_row([name, age_range, gender, height_range, features])
+    id = generate_unique_id([name, age_range, gender, height_range, features])
+    append_row([id, name, age_range, gender, height_range, features])
 
     # Send a simple success message
     return f"""
@@ -62,11 +63,11 @@ def select_service():
     })
 
 # Add this route to fetch IDs from the Google Sheets
-@app.route("/get-ids")
-def get_ids_from_sheet():
+@app.route("/get-services")
+def get_services_from_sheet():
     # Fetch the IDs from the Google Sheets API
-    ids = get_ids()
-    return jsonify(ids)  # Return the list as JSON
+    services = get_services()
+    return jsonify(services)  # Return the list as JSON
 
 if __name__ == "__main__":
     # For Raspberry Pi / remote access, use host="0.0.0.0"

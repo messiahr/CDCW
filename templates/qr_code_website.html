@@ -124,8 +124,9 @@
         });
 
         // Fetch radio button values from the server
+        // Fetch radio button values from the server
         async function fetchRadioButtonValues() {
-            const response = await fetch('/get-ids');  // Call the '/get-ids' route
+            const response = await fetch('/get-services');  // Call the '/get-services' route
             const ids = await response.json();  // Parse the JSON response from the server
 
             // Get the container for radio buttons
@@ -134,8 +135,13 @@
             // Clear the existing radio buttons (if any)
             radioContainer.innerHTML = "";
 
-            // Populate the radio buttons with options
-            ids.forEach(id => {
+            // Filter out empty values or values that contain "Additional Information" (case insensitive)
+            const filteredIds = ids.filter(id => {
+                return id.trim() !== "" && !id.toLowerCase().includes("additional information");
+            });
+
+            // Populate the radio buttons with the filtered options
+            filteredIds.forEach(id => {
                 const label = document.createElement("label");
                 const input = document.createElement("input");
 
@@ -151,19 +157,6 @@
                 label.prepend(input);
                 radioContainer.appendChild(label);
             });
-        }
-
-        // Handle the form submission (submit the selected radio button value)
-        function submitSelection() {
-            const selectedOption = document.querySelector('input[name="service"]:checked');
-
-            if (selectedOption) {
-                alert(`You selected: ${selectedOption.value}`);
-                // Optionally, send the selected value to the server here
-                // sendSelectionToServer(selectedOption.value);
-            } else {
-                alert("No selection made.");
-            }
         }
 
         // Call the fetch function when the page loads
