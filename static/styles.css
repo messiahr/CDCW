@@ -80,20 +80,35 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #45a049;
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-  .form-container {
-    padding: 20px;
-  }
+/* Style for the radio buttons to appear as circles */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
 
-  h1 {
-    font-size: 24px;
-  }
-
-  button {
+.radio-group label {
+    margin: 10px 0;
     font-size: 18px;
-  }
+    cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 10px;
+    accent-color: #007bff;  /* Change the color of the radio button */
+}
+
+#qr-reader {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+@media (max-width: 600px) {
+    #qr-reader {
+        width: 100%;
+    }
 }
